@@ -208,6 +208,135 @@ app.get("/search", async (req, res) => {
 });
 
 
+// //POST - /order
+app.post("/order", async (req, res) => {
+  const { user, product, quantity, price, deliveryCharges, shippingAddress } =
+    req.body;
+
+  const order = new Order({
+    user,
+    product,
+    quantity,
+    price,
+    deliveryCharges,
+    shippingAddress,
+  });
+
+  try {
+    const saveUserOrder = await order.save();
+    res.json({
+      success: true,
+      data: saveUserOrder,
+      message: "Order save Successfuly.",
+    });
+  } catch (err) {
+    res.json({
+      success: false,
+      message: err.message,
+    });
+  }
+});
+
+//GET /orders/:id
+app.get("/order/:id", async (req, res) => {
+  const { id } = req.params;
+  const findOrder = await Order.findById(id).populate("user product");
+
+  //This not show in order
+  findOrder.user.password = undefined;
+
+  res
+    .json({
+      success: true,
+      data: findOrder,
+      message: "Order successfully found",
+    })
+    .populate("user product");
+});
+
+//GET - /orders/user/:id
+//how many orders are ordered by one user
+
+app.get("/order/user/:_id", async (req, res) => {
+  const { _id } = req.params;
+  const ordersByUserId = await Order.find({ user: _id }).populate(
+    "user product"
+  );
+
+  res.json({
+    success: true,
+    data: ordersByUserId,
+    message: "Orders by User ID",
+  });
+});
+
+//PATCH - /order/status/:id
+app.patch("/order/status/:id", async (req, res) => {
+  const { id } = req.params;
+  const {status} = req.body;
+
+  const STATUS_PRIORITY_MAP = {
+    pending: 0,
+    shipped: 1,
+    delivered: 2,
+    returned: 3,
+    cancelled: 4,
+    rejected: 5,
+  };
+
+  const order = await Order.findById(id);
+  const currentStatus = order.status; 
+
+  const currentPriority = STATUS_PRIORITY_MAP[currentStatus];
+
+  const newPriority = STATUS_PRIORITY_MAP[status];
+
+  await Order.updateOne({ _id: id }, { $set: { status: status }});
+
+  if(currentPriority > newPriority){
+    return res.json({
+      success: false,     
+    })
+  }
+
+  res.json({
+    success: true,
+    message: "Order status updated",
+  });
+});
+
+//GET - /orders
+
+app.get("/orders", async (req, res) => {
+  const allOrders = await Order.find().populate("user product");
+
+  allOrders.forEach((order) => {
+    order.user.password = undefined;
+  });
+
+  try {
+    res.json({
+      success: true,
+      data: allOrders,
+      message: "Orders fetched successfuly",
+    });
+  } catch (error) {
+    res.json({
+      success: false,
+      message: "Orders not fetched successfuly",
+    });
+  }
+});
+
+app.post('/api/endpoint', async (req, res) => {
+  try {
+    // Your logic here
+    res.send('Success');
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
 
 
