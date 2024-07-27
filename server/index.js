@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
 
-//models
+
 import User from "./models/User.js";
 import Product from "./models/Product.js";
 import Order from "./models/Order.js";
@@ -25,7 +25,6 @@ connectMongoDB();
 
 
 
-//Post/login
 app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
@@ -55,11 +54,10 @@ app.post("/login", async (req, res) => {
   }
 });
 
-//Post/signup
+
 app.post("/signup", async (req, res) => {
   const { name, email, password, mobile, address, gender } = req.body;
 
-  //instance
   const user = new User({
     name: name,
     email: email,
@@ -85,7 +83,6 @@ app.post("/signup", async (req, res) => {
 });
 
 
-//GET  - get/products
 app.get("/products", async (req, res) => {
   const allproducts = await Product.find();
 
@@ -96,12 +93,12 @@ app.get("/products", async (req, res) => {
   });
 });
 
-//POST - post/product
+
 
 app.post("/product", async (req, res) => {
   const { name, description, price, image, category, brand } = req.body;
 
-  //instance
+
   const newproduct = new Product({
     name: name,
     description: description,
@@ -127,7 +124,7 @@ app.post("/product", async (req, res) => {
   }
 });
 
-//GET - get/product/:id
+
 
 app.get("/product/:id", async (req, res) => {
   const { id } = req.params;
@@ -141,7 +138,6 @@ app.get("/product/:id", async (req, res) => {
   });
 });
 
-//DELETE - delete/product/:id
 
 app.delete("/product/:id", async (req, res) => {
   const { id } = req.params;
@@ -153,7 +149,6 @@ app.delete("/product/:id", async (req, res) => {
   });
 });
 
-// //PUT - put/product/:id
 
 app.put("/product/:id", async (req, res) => {
   const { id } = req.params;
@@ -191,7 +186,7 @@ app.put("/product/:id", async (req, res) => {
   }
 });
 
-//GET - get/product/search/query
+
 
 app.get("/search", async (req, res) => {
   const { q } = req.query;
@@ -208,7 +203,7 @@ app.get("/search", async (req, res) => {
 });
 
 
-// //POST - /order
+
 app.post("/order", async (req, res) => {
   const { user, product, quantity, price, deliveryCharges, shippingAddress } =
     req.body;
@@ -237,12 +232,11 @@ app.post("/order", async (req, res) => {
   }
 });
 
-//GET /orders/:id
+
 app.get("/order/:id", async (req, res) => {
   const { id } = req.params;
   const findOrder = await Order.findById(id).populate("user product");
 
-  //This not show in order
   findOrder.user.password = undefined;
 
   res
@@ -254,8 +248,7 @@ app.get("/order/:id", async (req, res) => {
     .populate("user product");
 });
 
-//GET - /orders/user/:id
-//how many orders are ordered by one user
+
 
 app.get("/order/user/:_id", async (req, res) => {
   const { _id } = req.params;
@@ -270,7 +263,7 @@ app.get("/order/user/:_id", async (req, res) => {
   });
 });
 
-//PATCH - /order/status/:id
+
 app.patch("/order/status/:id", async (req, res) => {
   const { id } = req.params;
   const {status} = req.body;
@@ -305,7 +298,7 @@ app.patch("/order/status/:id", async (req, res) => {
   });
 });
 
-//GET - /orders
+
 
 app.get("/orders", async (req, res) => {
   const allOrders = await Order.find().populate("user product");
@@ -330,7 +323,7 @@ app.get("/orders", async (req, res) => {
 
 app.post('/api/endpoint', async (req, res) => {
   try {
-    // Your logic here
+  
     res.send('Success');
   } catch (error) {
     console.error('Error:', error);
@@ -341,7 +334,6 @@ app.post('/api/endpoint', async (req, res) => {
 
 
 
-//port
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
